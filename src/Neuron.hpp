@@ -89,3 +89,5 @@ private:
     double uniform_noise();
     double normal_noise();
 };
+
+#endif

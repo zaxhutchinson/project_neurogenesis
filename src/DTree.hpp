@@ -4,19 +4,18 @@
 #include<memory>
 
 #include"spspdef.hpp"
-#include"Synapse.hpp"
 
-struct DTreeNode {
-    sptr<Synapse> synapse;
-    double maturity;
-};
-
+class ProtoSynapse;
 class DTree {
 public:
     DTree();
     virtual ~DTree();
+
+    void Grow(sptr<ProtoSynapse> synapse, uint64_t time);
 private:
-    lsptr<DTreeNode> nodes;
+    double growth_rate;
+    uint64_t growth_window;
+    qsptr<ProtoSynapse> recently_active;
 };
 
 

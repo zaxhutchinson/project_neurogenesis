@@ -8,6 +8,7 @@ Templates and other meta stuff used by SPSP.
 #include<vector>
 #include<memory>
 #include<list>
+#include<queue>
 
 
 template<typename T>
@@ -15,6 +16,9 @@ using vec = std::vector<T>;
 
 template<typename T>
 using lst = std::list<T>;
+
+template<typename T>
+using que = std::queue<T>;
 
 template<typename T>
 using uptr = std::unique_ptr<T>;
@@ -42,3 +46,12 @@ using lsptr = lst<sptr<T>>;
 
 template<typename T>
 using lwptr = lst<wptr<T>>;
+
+template<typename T>
+using quptr = que<uptr<T>>;
+
+template<typename T>
+using qsptr = que<sptr<T>>;
+
+template<typename T>
+using qwptr = que<wptr<T>>;
