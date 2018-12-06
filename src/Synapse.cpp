@@ -9,6 +9,18 @@ Synapse::~Synapse() {
     
 }
 
+void Synapse::InitAsProto(sptr<DTree> dtree) {
+    dendritic_tree = dtree;
+    RegisterNewPreSpike = std::bind(&Synapse::proto_RegisterNewPreSpike, this, std::placeholders::_1);
+    RegisterNewPostSpike = std::bind(&Synapse::proto_RegisterNewPostSpike, this, std::placeholders::_1);
+}
+
+void Synapse::InitAsNorm() {
+    dendritic_tree = nullptr;
+    RegisterNewPreSpike = std::bind(&Synapse::norm_RegisterNewPreSpike, this, std::placeholders::_1);
+    RegisterNewPostSpike = std::bind(&Synapse::norm_RegisterNewPostSpike, this, std::placeholders::_1);
+}
+
 SynapseType Synapse::GetType() const { 
     return type;
 }
@@ -35,7 +47,9 @@ void Synapse::SetSignal(double signal) {
             (weight*strength) /
             (std::abs(weight) + std::abs(strength));
 }
-void Synapse::proto_RegisterNewPreSpike(uint64_t time) {}
+void Synapse::proto_RegisterNewPreSpike(uint64_t time) {
+    dendritic_tree->AddActivity(shared_from_this(),time);
+}
 void Synapse::proto_RegisterNewPostSpike(uint64_t time) {}
 void Synapse::norm_RegisterNewPreSpike(uint64_t time) {
     if(pre_spike_time) *pre_spike_time = time;
@@ -88,7 +102,7 @@ void Synapse::SetSignalHistorySize(uint64_t size) {
     }
 }
 
-const uint64_t * Synapse::GetPreSpikeTime() const {
+uint64_t * Synapse::GetPreSpikeTime() const {
     return pre_spike_time.get();
 }
 
@@ -100,7 +114,7 @@ void Synapse::ResetPreSpikeTime() {
     pre_spike_time = nullptr;
 }
 
-const uint64_t * Synapse::GetPostSpikeTime() const {
+uint64_t * Synapse::GetPostSpikeTime() const {
     return post_spike_time.get();
 }
 
@@ -118,6 +132,10 @@ double Synapse::GetStrength() const {
 
 void Synapse::SetStrength(double strength) {
     this->strength = strength;
+}
+
+void Synapse::AddStrength(double delta_str) {
+    strength += delta_str;
 }
 
 uint64_t Synapse::GetPostLearnWindow() const {

@@ -32,12 +32,15 @@ enum class SynapseType {
 // INTERFACE
 ////////////////////////////////////////////////////////////////////
 class DTree;
-class Synapse {
+class Synapse : public std::enable_shared_from_this<Synapse> {
 public:
     Synapse();
     virtual ~Synapse();
     Synapse(Synapse const &) = delete;
     Synapse & operator=(Synapse const &) = delete;
+
+    void InitAsProto(sptr<DTree> dtree);
+    void InitAsNorm();
 
     SynapseType GetType() const;
     void SetType(SynapseType type);
@@ -56,15 +59,16 @@ public:
     void SetTime(uint64_t time);
     uint64_t GetSignalHistorySize() const;
     void SetSignalHistorySize(uint64_t size);
-    const uint64_t * GetPreSpikeTime() const;
+    uint64_t * GetPreSpikeTime() const;
     void SetPreSpikeTime(uint64_t time);
     void ResetPreSpikeTime();
-    const uint64_t * GetPostSpikeTime() const;
+    uint64_t * GetPostSpikeTime() const;
     void SetPostSpikeTime(uint64_t time);
     void ResetPostSpikeTime();
 
     double GetStrength() const;
     void SetStrength(double strength);
+    void AddStrength(double delta_str);
     uint64_t GetPostLearnWindow() const;
     void SetPostLearnWindow(uint64_t window);
     uint64_t GetPreLearnWindow() const;
