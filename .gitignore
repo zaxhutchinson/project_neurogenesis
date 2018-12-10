@@ -38,8 +38,4 @@
 /.vscode
 
 # Example Executables
-target_example
-gridwar_example
-trade_example
-trace_example
-follow_example
+project_neurogenesis

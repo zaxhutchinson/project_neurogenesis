@@ -3,7 +3,9 @@
 /////////////////////////////////////////////////////////////////////////
 // SYNAPSE INTERFACE DEFINITIONS
 /////////////////////////////////////////////////////////////////////////
-Synapse::Synapse() {}
+Synapse::Synapse() {
+    
+}
 
 Synapse::~Synapse() {
     
@@ -33,7 +35,7 @@ bool Synapse::GetActive() const {
 void Synapse::SetActive(bool active) {
     this->active = active;
 }
-double Synapse::GetSignal(uint64_t delay) const {
+double Synapse::GetSignal(uint64_t time, uint64_t delay) const {
     // Positive modulo
     // (delay+1) is to get time-1 when delay is 0, default.
     int index = ( (time-(delay+1))%signal_history_size+signal_history_size )
@@ -41,16 +43,26 @@ double Synapse::GetSignal(uint64_t delay) const {
     return signal[index];
 
 }
-void Synapse::SetSignal(double signal) {
-    time = (time+1)%signal_history_size;
-    this->signal[time] = signal *
+void Synapse::SetSignal(uint64_t time, double signal) {
+    this->signal[time%signal_history_size] = signal *
             (weight*strength) /
             (std::abs(weight) + std::abs(strength));
 }
 void Synapse::proto_RegisterNewPreSpike(uint64_t time) {
+    if(pre_spike_time) *pre_spike_time = time;
+    else pre_spike_time = std::make_unique<uint64_t>(time);
     dendritic_tree->AddActivity(shared_from_this(),time);
 }
-void Synapse::proto_RegisterNewPostSpike(uint64_t time) {}
+void Synapse::proto_RegisterNewPostSpike(uint64_t time) {
+    if(post_spike_time) *post_spike_time = time;
+    else post_spike_time = std::make_unique<uint64_t>(time);
+    if(pre_spike_time) {
+        double diff_t = static_cast<double>(time-*pre_spike_time);
+        if(diff_t<post_learn_window) {
+            maturity++;
+        }
+    }
+}
 void Synapse::norm_RegisterNewPreSpike(uint64_t time) {
     if(pre_spike_time) *pre_spike_time = time;
     else pre_spike_time = std::make_unique<uint64_t>(time);
@@ -81,14 +93,6 @@ double Synapse::GetWeight() const {
 
 void Synapse::SetWeight(double weight) {
     this->weight = weight;
-}
-
-uint64_t Synapse::GetTime() const {
-    return time;
-}
-
-void Synapse::SetTime(uint64_t time) {
-    this->time = time;
 }
 
 uint64_t Synapse::GetSignalHistorySize() const {
@@ -168,6 +172,14 @@ void Synapse::SetPostLearnRate(double rate) {
 
 void Synapse::SetPreLearnRate(double rate) {
     pre_learn_rate = rate;
+}
+
+int Synapse::GetMaturity() {
+    return maturity;
+}
+
+void Synapse::SetMaturity(int m) {
+    maturity = m;
 }
 
 sptr<DTree> Synapse::GetDTree() {

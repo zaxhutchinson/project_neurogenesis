@@ -22,7 +22,7 @@ Neuron::Neuron(sptr<NT> nt) {
     alphabase = 10.0;
     max_spike_age = alphabase*10;
 
-    EnableNoise(NoiseType::None);
+    external_input = std::make_shared<double>(0.0);
 }
 
 void Neuron::Reset() {
@@ -33,7 +33,7 @@ void Neuron::Update(uint64_t time) {
     
 
     v = v + (k * (v-vr) * (v-vt) - u +
-        baseline + Input() + noise()) / cap;
+        baseline + Input(time)) / cap;
     u = u + a * (b *(v-vr) - u);
 
     if(v >= vpeak) {
@@ -46,7 +46,7 @@ void Neuron::Update(uint64_t time) {
         UpdateSpikes(false);
     }
 
-    Output();
+    Output(time);
 }
 
 void Neuron::UpdateSpikes(bool new_spike) {
@@ -79,31 +79,15 @@ void Neuron::RegisterSpike(uint64_t time) {
     }
 }
 
-void Neuron::Output() {
+void Neuron::Output(uint64_t time) {
     for(lsptr<Synapse>::iterator it = o_syn.begin();
             it != o_syn.end(); ) {
         if(!(*it)->GetActive()) {
             it = o_syn.erase(it);
         } else {
-            (*it)->SetSignal(current_output);
+            (*it)->SetSignal(time, current_output);
             it++;
         }
-    }
-}
-
-void Neuron::EnableNoise(NoiseType type, double val_a, double val_b, long seed) {
-    EnableNoise(type,val_a,val_b,std::make_shared<std::mt19937_64>(seed));
-}
-void Neuron::EnableNoise(NoiseType type, double val_a, double val_b, sptr<std::mt19937_64> rng){
-    this->rng = rng;
-    if(type==NoiseType::Normal) {
-        normal_dist = std::normal_distribution<double>(val_a,val_b);
-        noise = std::bind(&Neuron::normal_noise,this);
-    } else if(type==NoiseType::Uniform) {
-        uniform_dist = std::uniform_real_distribution<double>(val_a,val_b);
-        noise = std::bind(&Neuron::uniform_noise,this);
-    } else {
-        noise = std::bind(&Neuron::no_noise,this);
     }
 }
 
@@ -119,23 +103,13 @@ void Neuron::AddOutputSynapse(sptr<Synapse> synapse) {
     o_syn.push_back(synapse);
 }   
 
-double Neuron::no_noise() {
-    return 0.0;
-}
-double Neuron::uniform_noise() {
-    return uniform_dist(*rng);
-}
-double Neuron::normal_noise() {
-    return normal_dist(*rng);
-}
-
-double Neuron::Input() {
-    double input = 0.0;
+double Neuron::Input(uint64_t time) {
+    double input = *external_input;
     for(lsptr<Synapse>::iterator it = i_syn.begin(); it != i_syn.end(); ) {
         if(!(*it)->GetActive()) {
             it = i_syn.erase(it);
         } else {
-            input += (*it)->GetSignal();
+            input += (*it)->GetSignal(time);
             it++;
         }
     }
@@ -148,4 +122,6 @@ double Neuron::GetCurrentOutput() {
     return current_output;
 }
 
-double Neuron::C() { return c; }
+void Neuron::SetExternalInput(sptr<double> exin) {
+    external_input = exin;
+}

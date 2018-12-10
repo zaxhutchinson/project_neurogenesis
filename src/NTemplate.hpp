@@ -9,7 +9,7 @@
 #include<map>
 #include<stdexcept>
 
-#include"spspdef.hpp"
+#include"zxlb.hpp"
 
 enum class NoiseType {
     None,

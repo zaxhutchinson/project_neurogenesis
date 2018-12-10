@@ -16,7 +16,11 @@ functionality provides the necessary information to the Neuron class.
 #include<cmath>
 #include<functional>
 
-#include"spspdef.hpp"
+#include"cereal/archives/binary.hpp"
+#include"cereal/types/vector.hpp"
+#include"cereal/types/memory.hpp"
+
+#include"zxlb.hpp"
 
 ////////////////////////////////////////////////////////////////////
 // ENUM
@@ -46,8 +50,8 @@ public:
     void SetType(SynapseType type);
     bool GetActive() const;
     void SetActive(bool active);
-    double GetSignal(uint64_t delay=0) const;
-    void SetSignal(double signal);
+    double GetSignal(uint64_t time, uint64_t delay=0) const;
+    void SetSignal(uint64_t time, double signal);
     void proto_RegisterNewPreSpike(uint64_t time);
     void proto_RegisterNewPostSpike(uint64_t time);
     void norm_RegisterNewPreSpike(uint64_t time);
@@ -78,17 +82,43 @@ public:
     double GetPreLearnRate() const;
     void SetPreLearnRate(double rate);
 
+    int GetMaturity();
+    void SetMaturity(int m);
+
     sptr<DTree> GetDTree();
     void SetDTree(sptr<DTree> dtree);
 
     std::function<void(uint64_t)> RegisterNewPreSpike;
     std::function<void(uint64_t)> RegisterNewPostSpike;
 
+    ///////////////////////////////////////////////////////////////////////////
+    template<class Archive>
+    void save(Archive & ar) const {
+        ar(type, active, weight, signal_history_size,
+            strength, post_learn_window, pre_learn_window,
+            post_learn_rate, pre_learn_rate,
+            dendritic_tree, maturity);
+    }
+
+    template<class Archive>
+    void load(Archive & ar) {
+        ar(type, active, weight, signal_history_size,
+            strength, post_learn_window, pre_learn_window,
+            post_learn_rate, pre_learn_rate,
+            dendritic_tree, maturity);
+
+        for(int i = 0; i < signal_history_size; i++) {
+            signal.push_back(0.0);
+        }
+        pre_spike_time=nullptr;
+        post_spike_time=nullptr;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+
 private:
     SynapseType type;
     bool active;
     double weight;
-    uint64_t time;
     uint64_t signal_history_size;
     vec<double> signal;
     uptr<uint64_t> pre_spike_time;
@@ -99,6 +129,7 @@ private:
     double post_learn_rate;
     double pre_learn_rate;
     sptr<DTree> dendritic_tree;
+    int maturity;
 
 };
 
