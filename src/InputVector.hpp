@@ -14,6 +14,7 @@ public:
     InputVector(int size);
 
     void SetInputs(vec<double> & values);
+    void SetInput(int position, double signal);
     void ZeroInputs();
 
     vsptr<double> & GetInputs();

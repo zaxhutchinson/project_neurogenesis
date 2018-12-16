@@ -5,7 +5,8 @@
 Neuron::Neuron() {
 }
 
-Neuron::Neuron(sptr<NT> nt) {
+Neuron::Neuron(uint64_t id, sptr<NT> nt) {
+    this->id = id;
     cap = nt->cap;
     vr = nt->vr;
     vt = nt->vt;
@@ -29,9 +30,7 @@ void Neuron::Reset() {
     spike_age_buffer.clear();
 }
 
-void Neuron::Update(uint64_t time) {
-    
-
+bool Neuron::Update(uint64_t time) {
     v = v + (k * (v-vr) * (v-vt) - u +
         baseline + Input(time)) / cap;
     u = u + a * (b *(v-vr) - u);
@@ -41,12 +40,16 @@ void Neuron::Update(uint64_t time) {
         u = u + d;
         UpdateSpikes(true);
         RegisterSpike(time);
+        Output(time);
+        return true;
     } 
     else {
         UpdateSpikes(false);
+        Output(time);
+        return false;
     }
 
-    Output(time);
+    
 }
 
 void Neuron::UpdateSpikes(bool new_spike) {
@@ -116,6 +119,7 @@ double Neuron::Input(uint64_t time) {
     return input;
 }
 
+uint64_t Neuron::GetID() { return id; }
 double Neuron::V() { return v; }
 double Neuron::U() { return u; }
 double Neuron::GetCurrentOutput() {

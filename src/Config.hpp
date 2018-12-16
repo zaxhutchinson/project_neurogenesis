@@ -31,6 +31,11 @@ namespace config {
     extern int SPIKES_TO_MATURITY;
 
     //////////////////////////////////////////////////////////////////////////
+    // SERIALIZATION
+    extern std::string RECDIR;
+    extern std::string RECNAME;
+
+    //////////////////////////////////////////////////////////////////////////
     // FUNCTIONS
     bool LoadConfig(std::string filename);
     void PrintConfig();

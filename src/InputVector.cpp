@@ -5,7 +5,7 @@ InputVector::InputVector() {
 }
 InputVector::InputVector(int size) {
     for(int i = 0; i < size; i++) {
-        inputs.emplace_back(std::make_shared<double>(0.0));
+        inputs.push_back(std::make_shared<double>(0.0));
     }
 }
 
@@ -13,6 +13,9 @@ void InputVector::SetInputs(vec<double> & values) {
     for(int i = 0; i < values.size(); i++) {
         *(inputs[i]) = values[i];
     }
+}
+void InputVector::SetInput(int position, double signal) {
+    *(inputs[position]) = signal;
 }
 
 void InputVector::ZeroInputs() {

@@ -12,12 +12,16 @@
 #include"Config.hpp"
 #include"Layer.hpp"
 #include"InputVector.hpp"
+#include"ID.hpp"
+#include"DataWriter.hpp"
+#include"Options.hpp"
+#include"DataSet.hpp"
 
 class Sim {
 public:
     Sim();
     void Build(int input_size);
-    void Run();
+    void Run(Options ops);
 
     void LoadNeuronTemplates();
 
@@ -26,23 +30,23 @@ public:
     void LinkInputs();  // Vector and Layer must have been created.
 
     sptr<Layer> CreateNewLayer(int size, vsptr<Layer> inputs);
+    int GetNumberOfLayers();
 
 
     void Update(uint64_t time);
     void UpdateLayer(sptr<Layer> layer, uint64_t time);
 
 
-    void Save(std::string filename);
-    void Load(std::string filename);
+    
     ///////////////////////////////////////////////////////////////////////////
     template<class Archive>
     void save(Archive & ar) const {
-        ar(input_vector, all_layers);
+        ar(input_vector,all_layers,neuron_id);
     }
 
     template<class Archive>
     void load(Archive & ar) {
-        ar(input_vector, all_layers);
+        ar(input_vector, all_layers,neuron_id);
         LoadNeuronTemplates();
     }
     ///////////////////////////////////////////////////////////////////////////
@@ -53,6 +57,10 @@ private:
     sptr<InputVector> input_vector;
     vsptr<Layer> all_layers;
     uptr<NeuronTemplates> neuron_templates;
+    uptr<ID> neuron_id;
+    DataWriter writer;
+    Options options;
+    uptr<DataSet> dataset;
 };
 
 #endif

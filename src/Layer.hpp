@@ -4,6 +4,7 @@
 #include<random>
 
 #include"cereal/archives/binary.hpp"
+#include"cereal/types/list.hpp"
 #include"cereal/types/vector.hpp"
 #include"cereal/types/memory.hpp"
 
@@ -12,6 +13,7 @@
 #include"DTree.hpp"
 #include"Neuron.hpp"
 #include"Synapse.hpp"
+#include"ID.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -48,10 +50,11 @@ struct Layer {
     vsptr<Neuron> & GetNeurons();
 
     ///////////////////////////////////////////////////////////////////////////
-    void BuildInput(NeuronTemplates * templates, int size);
+    void BuildInput(NeuronTemplates * templates, ID * neuron_id, int size);
 
     void BuildStandard(NeuronTemplates * templates, 
                         LayerTemplate & lt,
+                        ID * neuron_id,
                         std::mt19937_64 & rng);
 };
 

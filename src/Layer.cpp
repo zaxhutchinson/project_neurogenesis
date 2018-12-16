@@ -8,22 +8,23 @@ vsptr<Neuron> & Layer::GetNeurons() {
     return neurons;
 }
 
-void Layer::BuildInput(NeuronTemplates * templates, int size) {
+void Layer::BuildInput(NeuronTemplates * templates, ID * neuron_id, int size) {
     for(int i = 0; i < size; i++) {
-        sptr<Neuron> neuron = std::make_shared<Neuron>(templates->GetNeuronTemplate("RegularSpiking"));
+        sptr<Neuron> neuron = std::make_shared<Neuron>(neuron_id->GetNewID(), templates->GetNeuronTemplate("RegularSpiking"));
         neurons.push_back(neuron);
     }
 }
 
 void Layer::BuildStandard(NeuronTemplates * templates, 
                         LayerTemplate & lt,
+                        ID * neuron_id,
                         std::mt19937_64 & rng) {
 
         std::discrete_distribution<int> layerDist(lt.conn_probs_by_layer.begin(), lt.conn_probs_by_layer.end());
         
         for(int n = 0; n < lt.num_neurons; n++) {
 
-            sptr<Neuron> neuron = std::make_shared<Neuron>(templates->GetNeuronTemplate(lt.neuron_type));
+            sptr<Neuron> neuron = std::make_shared<Neuron>(neuron_id->GetNewID(), templates->GetNeuronTemplate(lt.neuron_type));
 
             for(int d = 0; d < lt.dtrees_per_neuron; d++) {
 

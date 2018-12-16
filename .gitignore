@@ -32,10 +32,10 @@
 *.app
 
 # Dirs
-/obj
-/build
-/old
-/.vscode
+obj/
+build/
+old/
+.vscode/
 
 # Example Executables
 project_neurogenesis

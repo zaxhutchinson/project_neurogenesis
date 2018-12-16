@@ -29,14 +29,14 @@ class Neuron {
 
 public:
     Neuron();
-    Neuron(sptr<NT> nt); // Ctor to use
+    Neuron(uint64_t id, sptr<NT> nt); // Ctor to use
 
     // Places a neuron object back into its original state.
     // Does nothing to associated synapse objects.
     void Reset();
 
     // Update state
-    void Update(uint64_t time);
+    bool Update(uint64_t time);
     void UpdateSpikes(bool new_spike);  // Called by Update
     void RegisterSpike(uint64_t time);  // Called by Update
 
@@ -52,6 +52,7 @@ public:
     void Output(uint64_t time);
 
     // Get current v, u, and output
+    uint64_t GetID();
     double V();
     double U();
     double GetCurrentOutput();
@@ -61,13 +62,13 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     template<class Archive>
     void save(Archive & ar) const {
-        ar(cap,vr,vt,k,vpeak,a,b,c,d,baseline,external_input,
+        ar(id, cap,vr,vt,k,vpeak,a,b,c,d,baseline,external_input,
             alphabase, max_spike_age, i_syn, o_syn);
     }
 
     template<class Archive>
     void load(Archive & ar) {
-        ar(cap,vr,vt,k,vpeak,a,b,c,d,baseline,external_input,
+        ar(id, cap,vr,vt,k,vpeak,a,b,c,d,baseline,external_input,
             alphabase, max_spike_age, i_syn, o_syn);
         current_output=0.0;
         v=c;
@@ -76,6 +77,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
 private:
+    uint64_t id;
     double v;
     double u;
     double cap;
