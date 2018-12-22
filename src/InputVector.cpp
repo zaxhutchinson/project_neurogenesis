@@ -27,3 +27,7 @@ void InputVector::ZeroInputs() {
 vsptr<double> & InputVector::GetInputs() {
     return inputs;
 }
+
+sptr<double> InputVector::GetInput(int index) {
+    return inputs[index];
+}

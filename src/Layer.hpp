@@ -2,6 +2,8 @@
 #define LAYER_HPP
 
 #include<random>
+#include<utility>
+#include<algorithm>
 
 #include"cereal/archives/binary.hpp"
 #include"cereal/types/list.hpp"
@@ -17,7 +19,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-
 ///////////////////////////////////////////////////////////////////////////////
 struct Layer;
 struct LayerTemplate {
@@ -27,35 +28,34 @@ struct LayerTemplate {
     int num_neurons;
     int dtrees_per_neuron;
     int syn_per_dtree;
+
+    int latinh_num_neurons;
+    double latinh_conn_prob;
+    std::string latinh_neuron_type;
 };
 
 struct Layer {
     
     vsptr<Neuron> neurons;
     lsptr<Synapse> synapses;
+    vsptr<Layer> layers;
 
     ///////////////////////////////////////////////////////////////////////////
     template<class Archive>
     void save(Archive & ar) const {
-        ar(neurons,synapses);
+        ar(neurons,synapses,layers);
     }
 
     template<class Archive>
     void load(Archive & ar) {
-        ar(neurons,synapses);
+        ar(neurons,synapses,layers);
     }
     ///////////////////////////////////////////////////////////////////////////
 
-    int GetSize();
-    vsptr<Neuron> & GetNeurons();
-
     ///////////////////////////////////////////////////////////////////////////
-    void BuildInput(NeuronTemplates * templates, ID * neuron_id, int size);
-
-    void BuildStandard(NeuronTemplates * templates, 
-                        LayerTemplate & lt,
-                        ID * neuron_id,
-                        std::mt19937_64 & rng);
+    
 };
+
+
 
 #endif

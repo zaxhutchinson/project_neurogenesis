@@ -4,19 +4,28 @@ Sim::Sim() {
     std::random_device rd;
     rng = std::mt19937_64(rd());
     quit = false;
-    neuron_id=std::make_unique<ID>();
-}
-
-void Sim::Build(int input_size) {
-    LoadNeuronTemplates();
-    CreateInputLayer(input_size);
-    CreateInputVector(input_size);
-    LinkInputs();
 }
 
 void Sim::LoadNeuronTemplates() {
     neuron_templates = std::make_unique<NeuronTemplates>();
     neuron_templates->LoadDefaultTemplates();
+}
+
+void Sim::Start(Options & ops) {
+    LoadNeuronTemplates();
+
+    if(ops.load) {
+        model = Load(config::RECDIR+ops.loadname);
+    } else {    
+        Build(ops);
+    }
+}
+
+void Sim::Build(Options & ops) {
+    model = std::make_unique<Model>();
+    model->name = ops.savename;
+    model->neuron_id = std::make_unique<ID>();
+    BuildInputLayer(model.get(), ops, neuron_templates.get());
 }
 
 void Sim::Run(Options ops) {
@@ -39,7 +48,9 @@ void Sim::Run(Options ops) {
 
         if(time==next_dataset_stop) {
             std::cout << "STOPPING DS: " << ds_counter << std::endl;
-            input_vector->ZeroInputs();
+
+            model->input_vector->ZeroInputs();
+
             if(ds_counter<dataset->Size()) {
                 ds_counter++;
                 next_dataset_start=time+options.between_duration;
@@ -55,7 +66,7 @@ void Sim::Run(Options ops) {
             std::cout << "STARTING DS: " << ds_counter << std::endl;
             Data& data = dataset->GetData(ds_counter);
             for(int i = 0; i < data.positions.size(); i++) {
-                input_vector->SetInput(data.positions[i],data.signals[i]);
+                model->input_vector->SetInput(data.positions[i],data.signals[i]);
             }
         }
 
@@ -68,44 +79,15 @@ void Sim::Run(Options ops) {
 
     // Stop recording if necessary
     if(options.record) writer.Stop();
-}
 
-void Sim::CreateInputLayer(int size) {
-    sptr<Layer> input_layer = std::make_shared<Layer>();
-    input_layer->BuildInput(neuron_templates.get(), neuron_id.get(), size);
-    all_layers.push_back(input_layer);
-
-}
-void Sim::CreateInputVector(int size) {
-    input_vector = std::make_shared<InputVector>(size);
-}
-
-void Sim::LinkInputs() {
-    vsptr<double> & inputs = input_vector->GetInputs();
-    vsptr<Neuron> & neurons = all_layers[0]->GetNeurons();
-
-    if(inputs.size() != neurons.size()) {
-        return;
-    } else {
-        for(int i = 0; i < inputs.size(); i++) {
-            neurons[i]->SetExternalInput(inputs[i]);
-        }
-    }
-}
-
-
-
-sptr<Layer> Sim::CreateNewLayer(int size, vsptr<Layer> inputs) {
-
-}
-
-int Sim::GetNumberOfLayers() {
-    return all_layers.size();
+    // Save the model if necessary
+    if(options.save) Save(options.savename,model);
 }
 
 void Sim::Update(uint64_t time) {
-    for(int i = 0; i < all_layers.size(); i++) {
-        UpdateLayer(all_layers[i], time);
+    for(vsptr<Layer>::iterator it = model->layers.begin();
+            it != model->layers.end(); it++) {
+        UpdateLayer(*it, time);
     }    
 }
 void Sim::UpdateLayer(sptr<Layer> layer, uint64_t time) {
@@ -125,8 +107,31 @@ void Sim::UpdateLayer(sptr<Layer> layer, uint64_t time) {
             it++;
         }
     }
+
+    // Update child layers
+    for(vsptr<Layer>::iterator it = layer->layers.begin();
+            it != layer->layers.end(); it++) {
+        UpdateLayer(*it, time);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+
+
+void Sim::Save(std::string filename, sptr<Model> model) {
+    std::cout << "SAVING TO: " << filename << std::endl;
+    std::ofstream out(filename, std::ios::binary | std::ios::out);
+    cereal::BinaryOutputArchive oarchive(out);
+    oarchive(model);
+}
+
+sptr<Model> Sim::Load(std::string filename) {
+    sptr<Model> model;
+    std::cout << "LOADING FROM: " << filename << std::endl;
+    std::ifstream in(filename, std::ios::binary | std::ios::in);
+    cereal::BinaryInputArchive iarchive(in);
+    iarchive(model);
+    return model;
+}
