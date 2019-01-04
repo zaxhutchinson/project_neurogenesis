@@ -1,0 +1,8 @@
+Project Neurogenesis Change Log
+
+1/4/2019
+    - Adds GetCurrentNormalizedOutput to Neuron which squashes current_output using: x / (1 + abs(x)). I am not sure if this is preferable over using current_output directly, so I will leave unoptimized.
+    - Adds filename and dirs to config file.
+    - Adds initial function to build new layers.
+    - Changes Layer struct to store weak_ptrs to child layers. Owning shared_ptr is stored in the Model object.
+    - Reworks the makefile and divides up the source into neuro, sim and viewer. This is prep work for an additional executable I plan on building that will allow you to view a network and add layers by hand.
