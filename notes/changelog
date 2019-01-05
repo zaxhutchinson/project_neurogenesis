@@ -6,3 +6,12 @@ Project Neurogenesis Change Log
     - Adds initial function to build new layers.
     - Changes Layer struct to store weak_ptrs to child layers. Owning shared_ptr is stored in the Model object.
     - Reworks the makefile and divides up the source into neuro, sim and viewer. This is prep work for an additional executable I plan on building that will allow you to view a network and add layers by hand.
+
+1/5/2019
+    - Changes DTree to store a weak_ptr to relevant Synapses.
+    - Adds first BuildModel function, BuildModel_A_0. First foray into multilayer models.
+    - Fixes bug in DataWriter due to no assignment operator for SpikeData struct.
+    - Fixes bug in DataWriter due to path and filename confusion.
+    - Adds an id to Layer so that recorded spikes can be traced back to the Layer and Neuron.
+    - Loading and Saving models appears to be working.
+    - Recording spikes appears to be working.

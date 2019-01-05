@@ -13,9 +13,13 @@
 #include"Config.hpp"
 
 struct SpikeData {
-    SpikeData(uint64_t id, uint64_t t);
+    SpikeData();
+    SpikeData(uint64_t _layer_id, uint64_t _neuron_id, uint64_t t);
+    SpikeData(const SpikeData & other);
+    SpikeData& operator=(const SpikeData & rhs);
     uint64_t time;
     uint64_t neuron_id;
+    uint64_t layer_id;
 };
 
 class DataWriter {
@@ -26,9 +30,7 @@ public:
 
     void Start(std::string savename);
     void Stop();
-    //void ClearUp();
 private:
-    std::string path;
     std::string fname;
     bool run;
     std::queue<SpikeData> data_to_write;

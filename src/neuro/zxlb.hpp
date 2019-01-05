@@ -28,7 +28,7 @@ template<typename T>
 using sptr = std::shared_ptr<T>;
 
 template<typename T>
-using wptr = std::shared_ptr<T>;
+using wptr = std::weak_ptr<T>;
 
 template<typename T>
 using vuptr = vec<uptr<T>>;

@@ -15,7 +15,7 @@ class DTree {
 public:
     DTree();
 
-    void AddSynapse(sptr<Synapse> synapse);
+    void AddSynapse(wptr<Synapse> synapse);
 
     void AddActivity(sptr<Synapse> synapse, uint64_t time);
     void Grow(sptr<Synapse> first, sptr<Synapse> second, uint64_t diff_t);
@@ -34,7 +34,7 @@ public:
 private:
     double growth_rate;
     uint64_t growth_window;
-    lsptr<Synapse> recently_active;
+    lwptr<Synapse> recently_active;
 };
 
 

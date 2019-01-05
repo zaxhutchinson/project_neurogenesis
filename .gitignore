@@ -38,4 +38,5 @@ old/
 .vscode/
 
 # Example Executables
-project_neurogenesis
+sim
+viewer

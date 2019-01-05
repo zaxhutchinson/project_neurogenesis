@@ -11,26 +11,26 @@ void Sim::LoadNeuronTemplates() {
     neuron_templates->LoadDefaultTemplates();
 }
 
-void Sim::Start(Options & ops) {
+void Sim::Init(Options & ops) {
+    options = ops;
     LoadNeuronTemplates();
+}
 
-    if(ops.load) {
-        model = Load(config::RECDIR+ops.loadname);
-    } else {    
-        Build(ops);
+void Sim::Build() {
+    if(options.load) {
+        model = Load(options.loadname);
+    } else {
+        model = std::make_unique<Model>();
+        model->name = options.savename;
+        model->neuron_id = std::make_unique<ID>();
+
+        switch(options.build_id) {
+            case 0: BuildModel_A_0(model.get(),&options,neuron_templates.get(),&rng);
+        }
     }
 }
 
-void Sim::Build(Options & ops) {
-    model = std::make_unique<Model>();
-    model->name = ops.savename;
-    model->neuron_id = std::make_unique<ID>();
-    BuildInputLayer(model.get(), ops, neuron_templates.get());
-}
-
-void Sim::Run(Options ops) {
-    // Copy the options
-    options=ops;
+void Sim::Run() {
 
     // Generate the input dataset.
     dataset = GenerateDataSet(rng, options.dataset_id);
@@ -47,12 +47,13 @@ void Sim::Run(Options ops) {
     while(!quit) {
 
         if(time==next_dataset_stop) {
-            std::cout << "STOPPING DS: " << ds_counter << std::endl;
 
+            std::cout << "STOPPING DS: " << ds_counter << std::endl;
+            ds_counter++;
             model->input_vector->ZeroInputs();
 
             if(ds_counter<dataset->Size()) {
-                ds_counter++;
+                
                 next_dataset_start=time+options.between_duration;
                 next_dataset_stop=next_dataset_start+options.stimulus_duration;
             }
@@ -64,6 +65,7 @@ void Sim::Run(Options ops) {
 
         if(time==next_dataset_start) {
             std::cout << "STARTING DS: " << ds_counter << std::endl;
+            
             Data& data = dataset->GetData(ds_counter);
             for(int i = 0; i < data.positions.size(); i++) {
                 model->input_vector->SetInput(data.positions[i],data.signals[i]);
@@ -92,7 +94,7 @@ void Sim::UpdateLayer(sptr<Layer> layer, uint64_t time) {
     for(vsptr<Neuron>::iterator it = layer->neurons.begin();
             it != layer->neurons.end(); it++) {
         if((*it)->Update(time)) {
-            writer.AddData(SpikeData((*it)->GetID(), time));
+            writer.AddData(SpikeData(layer->id,(*it)->GetID(), time));
         }
     }
 
@@ -113,7 +115,7 @@ void Sim::UpdateLayer(sptr<Layer> layer, uint64_t time) {
 
 
 void Sim::Save(std::string filename, sptr<Model> model) {
-    std::cout << "SAVING TO: " << filename << std::endl;
+    std::cout << "SAVING TO: " << filename << std::endl << std::flush;
     std::ofstream out(filename, std::ios::binary | std::ios::out);
     cereal::BinaryOutputArchive oarchive(out);
     oarchive(model);

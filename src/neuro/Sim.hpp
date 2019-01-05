@@ -20,9 +20,9 @@
 class Sim {
 public:
     Sim();
-    void Start(Options & ops);
-    void Build(Options & ops);
-    void Run(Options ops);
+    void Init(Options & ops);
+    void Build();
+    void Run();
 
     void LoadNeuronTemplates();
 

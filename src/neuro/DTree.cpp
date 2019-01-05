@@ -5,21 +5,23 @@ DTree::DTree() {
 
 }
 
-void DTree::AddSynapse(sptr<Synapse> synapse) {
+void DTree::AddSynapse(wptr<Synapse> synapse) {
     recently_active.push_back(synapse);
 }
 
 void DTree::AddActivity(sptr<Synapse> synapse, uint64_t time) {
 
-    for(lsptr<Synapse>::iterator it = recently_active.begin();
+    for(lwptr<Synapse>::iterator it = recently_active.begin();
             it != recently_active.end(); ) {
         
-        uint64_t * pre_spike_time = (*it)->GetPreSpikeTime();
+        sptr<Synapse> syn = it->lock();
+        
+        uint64_t * pre_spike_time = syn->GetPreSpikeTime();
         if(pre_spike_time != nullptr) {
             if(*pre_spike_time > growth_window) {
                 it = recently_active.erase(it);
             } else {
-                Grow(*it,synapse,time-*pre_spike_time);
+                Grow(syn,synapse,time-*pre_spike_time);
                 it++;
             }
         }

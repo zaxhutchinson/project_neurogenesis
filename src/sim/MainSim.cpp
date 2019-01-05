@@ -16,6 +16,9 @@ void PrintHelp();
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv) {
 
+    config::LoadConfig("config/config.ini");
+    config::PrintConfig();
+
     vec<std::string> args(argv+1, argv+argc);
     Options options;
     options.recname = config::RECDIR+config::RECNAME;
@@ -25,19 +28,32 @@ int main(int argc, char** argv) {
     for(int i = 0; i < args.size(); i++) {
         if(args[i]=="-r") {
             options.record=true;
+            if(i+1 < args.size() && args[i+1][0]!='-') {
+                options.recname=config::RECDIR+args[++i];
+            }
         }
         else if(args[i]=="-t") {
             options.train=true;
         }
         else if(args[i]=="-s") {
             options.save=true;
+            if(i+1 < args.size() && args[i+1][0]!='-') {
+                options.savename=config::MODDIR+args[++i];
+            }
         }
         else if(args[i]=="-l") {
             options.load=true;
+            if(i+1 < args.size() && args[i+1][0]!='-') {
+                options.loadname=config::MODDIR+args[++i];
+            }
         }
-        else if(args[i]=="-i") {
-            if(i+1 < args.size()) {
+        else if(args[i]=="-b") {
+            if(i+2 < args.size()) {
+                options.build_id=std::stoi(args[++i]);
                 options.input_size=std::stoi(args[++i]);
+            } else {
+                std::cout << "Invalid arguments for option -b\n"
+                        << "\t-b [build id] [input size]\n";
             }
         } else if(args[i]=="-h") {
             PrintHelp();
@@ -45,14 +61,13 @@ int main(int argc, char** argv) {
         }
     }
 
-    config::LoadConfig("config/config.ini");
-    config::PrintConfig();
+    
 
     uptr<Sim> sim = std::make_unique<Sim>();
 
-    sim->Start(options);
-    sim->Build(options);
-    sim->Run(options);
+    sim->Init(options);
+    sim->Build();
+    sim->Run();
 
     return 0;
 }

@@ -22,6 +22,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 struct Layer;
 struct LayerTemplate {
+    uint64_t layer_id;
     vsptr<Layer> input_layers;
     vec<double> conn_probs_by_layer;
     std::string neuron_type;
@@ -37,20 +38,20 @@ struct LayerTemplate {
         but these links are not used to update the model.
 */
 struct Layer {
-    
+    uint64_t id;
     vsptr<Neuron> neurons;
     lsptr<Synapse> synapses;
-    vwptr<Layer> layers;    
+    vwptr<Layer> layers;   
 
     ///////////////////////////////////////////////////////////////////////////
     template<class Archive>
     void save(Archive & ar) const {
-        ar(neurons,synapses,layers);
+        ar(id,neurons,synapses,layers);
     }
 
     template<class Archive>
     void load(Archive & ar) {
-        ar(neurons,synapses,layers);
+        ar(id,neurons,synapses,layers);
     }
     ///////////////////////////////////////////////////////////////////////////
 

@@ -24,13 +24,13 @@ OBJECTS = $(foreach d,$(SRCDIR),$(subst $(d),$(OBJDIR),$(wildcard $(d)/*.cpp)))
 sim: neuro MainSim
 	$(CC) \
 		$(filter-out $(OBJDIR)/MainView.o, $(wildcard $(OBJDIR)/*.o)) \
-		-o main_sim \
+		-o sim \
 		$(LFLAGS)
 
 viewer: neuro MainViewer
 	$(CC) \
 		$(filter-out $(OBJDIR)/MainSim.o, $(wildcard $(OBJDIR)/*.o)) \
-		-o main_viewer \
+		-o viewer \
 		$(LFLAGS)
 
 neuro: neuro_src
