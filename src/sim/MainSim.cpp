@@ -79,7 +79,7 @@ void PrintHelp() {
     std::cout << "Project Neurogenesis Help\n\n";
     std::cout << "\t-r <filename> \n\t\tRecord model output\n\n";
     std::cout << "\t-t \n\t\ttrain the model\n\n";
-    std::cout << "\t-s <filename> \n\t\t Save the model when done\n\n";
-    std::cout << "\t-l <filename> \n\t\t Load the model <filename>\n\n";
-    std::cout << "\t-i \n\t\t Designate input size\n\n";
+    std::cout << "\t-s <filename> \n\t\tSave the model when done\n\n";
+    std::cout << "\t-l <filename> \n\t\tLoad the model <filename>\n\n";
+    std::cout << "\t-b <model id> <input size>\n\t\t Designate input size. -l overrides -b.\n\n";
 }
