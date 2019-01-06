@@ -19,6 +19,7 @@ functionality provides the necessary information to the Neuron class.
 #include"cereal/archives/binary.hpp"
 #include"cereal/types/vector.hpp"
 #include"cereal/types/memory.hpp"
+#include"cereal/types/functional.hpp"
 
 #include"zxlb.hpp"
 
@@ -44,7 +45,8 @@ public:
     Synapse(Synapse const &) = delete;
     Synapse & operator=(Synapse const &) = delete;
 
-    void InitAsProto(sptr<DTree> dtree);
+    void AddDTree(sptr<DTree> dtree);
+    void InitAsProto();
     void InitAsNorm();
 
     SynapseType GetType() const;
@@ -98,7 +100,7 @@ public:
         ar(type, active, weight, signal_history_size,
             strength, post_learn_window, pre_learn_window,
             post_learn_rate, pre_learn_rate,
-            dendritic_tree, maturity);
+            dendritic_tree, mature, maturity);
     }
 
     template<class Archive>
@@ -106,13 +108,16 @@ public:
         ar(type, active, weight, signal_history_size,
             strength, post_learn_window, pre_learn_window,
             post_learn_rate, pre_learn_rate,
-            dendritic_tree, maturity);
+            dendritic_tree, mature, maturity);
 
         for(int i = 0; i < signal_history_size; i++) {
             signal.push_back(0.0);
         }
         pre_spike_time=nullptr;
         post_spike_time=nullptr;
+
+        if(mature) InitAsNorm();
+        else InitAsProto();
     }
     ///////////////////////////////////////////////////////////////////////////
 
@@ -130,6 +135,7 @@ private:
     double post_learn_rate;
     double pre_learn_rate;
     sptr<DTree> dendritic_tree;
+    bool mature;
     int maturity;
 
 };

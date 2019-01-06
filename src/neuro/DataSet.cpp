@@ -30,7 +30,7 @@ void GenerateDataSet0(std::mt19937_64 & rng, DataSet * ds) {
         Data data;
         for(int j= 0; j < 10; j++) {
             data.positions.push_back(i+10*j);
-            data.signals.push_back(100.0);
+            data.signals.push_back(250.0);
         }
         ds->AddData(data);
     }

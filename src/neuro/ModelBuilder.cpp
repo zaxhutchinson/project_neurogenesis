@@ -49,13 +49,15 @@ void BuildLayerFromTemplate(Model * model, NeuronTemplates * nt, LayerTemplate *
         // For each DT
         for(int t = 0; t < lt->dtrees_per_neuron; t++) {
 
-            sptr<DTree> dtree = std::make_shared<DTree>();
+            sptr<DTree> dtree = std::make_shared<DTree>(lt->dtree_growth_rate, lt->dtree_growth_window);
 
             for(int s = 0; s < lt->syn_per_dtree; s++) {
+
                 tuple<int,int> addr = neuron_addresses[s];
 
                 sptr<Synapse> syn = std::make_shared<Synapse>(lt->syn_weight);
-                syn->InitAsProto(dtree);
+                syn->AddDTree(dtree);
+                syn->InitAsProto();
 
                 sptr<Layer> layer = lt->input_layers[addr.first];
                 sptr<Neuron> pre = layer->neurons[addr.second];
@@ -95,9 +97,11 @@ void BuildModel_A_0(Model * model, Options * options, NeuronTemplates * nt, RNG 
     lt_1.conn_probs_by_layer.push_back(1.0);
     lt_1.num_neurons=400;
     lt_1.dtrees_per_neuron=3;
+    lt_1.dtree_growth_rate=1.0;
+    lt_1.dtree_growth_window=50;
     lt_1.syn_per_dtree=5;
     lt_1.neuron_type="RegularSpiking";
-    lt_1.syn_weight=50.0;
+    lt_1.syn_weight=100.0;
 
     BuildLayerFromTemplate(model,nt,&lt_1,rng);
 

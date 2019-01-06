@@ -58,6 +58,46 @@ int main(int argc, char** argv) {
         } else if(args[i]=="-h") {
             PrintHelp();
             return 0;
+        } else if(args[i]=="-d") {
+            if(i+1 < args.size()) {
+                std::string arg(args[++i]);
+                if(arg[0]=='[') {
+                    if(arg[arg.size()-1]==']') {
+                        arg = arg.substr(1,arg.size()-1);
+                        int dset = std::stoi(arg);
+                        options.dataset_id.push_back(dset);
+                    }
+                    else {
+                        arg = arg.substr(1);
+
+                        int dset = std::stoi(arg);
+                        options.dataset_id.push_back(dset);
+
+                        arg = std::string(args[++i]);
+                        while( arg[arg.size()-1] != ']') {
+                            if(arg[0]=='-') {
+                                std::cout << "Dataset list not closed with ']'.\n";
+                                return 1;
+                            }
+
+                            dset = std::stoi(arg);
+                            options.dataset_id.push_back(dset);
+                            arg = std::string(args[++i]);
+                        }
+                        arg = arg.substr(0,arg.size()-1);
+                        dset = std::stoi(arg);
+                        options.dataset_id.push_back(dset);
+                    }
+
+                } else {
+                    std::cout << "Dataset list must be contained in []\n";
+                    return 1;
+                }
+
+            } else {
+                std::cout << "Missing dataset list argument.\n";
+                return 1;
+            }
         }
     }
 

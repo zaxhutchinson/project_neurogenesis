@@ -3,27 +3,34 @@
 /////////////////////////////////////////////////////////////////////////
 // SYNAPSE INTERFACE DEFINITIONS
 /////////////////////////////////////////////////////////////////////////
-Synapse::Synapse() {
-    
+Synapse::Synapse() 
+    : active(true) {
+    SetSignalHistorySize(2);
 }
 
 Synapse::Synapse(double _weight)
-    : weight(_weight) {
-
+    : active(true), weight(_weight) {
+    
+    SetSignalHistorySize(2);
 }
 
 Synapse::~Synapse() {
     
 }
 
-void Synapse::InitAsProto(sptr<DTree> dtree) {
+void Synapse::AddDTree(sptr<DTree> dtree) {
     dendritic_tree = dtree;
+}
+
+void Synapse::InitAsProto() {
+    mature = false;
     RegisterNewPreSpike = std::bind(&Synapse::proto_RegisterNewPreSpike, this, std::placeholders::_1);
     RegisterNewPostSpike = std::bind(&Synapse::proto_RegisterNewPostSpike, this, std::placeholders::_1);
 }
 
 void Synapse::InitAsNorm() {
     dendritic_tree = nullptr;
+    mature = true;
     RegisterNewPreSpike = std::bind(&Synapse::norm_RegisterNewPreSpike, this, std::placeholders::_1);
     RegisterNewPostSpike = std::bind(&Synapse::norm_RegisterNewPostSpike, this, std::placeholders::_1);
 }

@@ -20,7 +20,7 @@ Neuron::Neuron(uint64_t id, sptr<NT> nt) {
     v = nt->c;
     u = nt->d;
 
-    alphabase = 10.0;
+    alphabase = 2.0;
     max_spike_age = alphabase*10;
 
     external_input = std::make_shared<double>(0.0);
@@ -72,14 +72,18 @@ void Neuron::UpdateSpikes(bool new_spike) {
 }
 
 void Neuron::RegisterSpike(uint64_t time) {
+
     for(lsptr<Synapse>::iterator it = i_syn.begin();
             it != i_syn.end(); it++) {
         (*it)->RegisterNewPostSpike(time);
     }
+
     for(lsptr<Synapse>::iterator it = o_syn.begin();
             it != o_syn.end(); it++) {
+        
         (*it)->RegisterNewPreSpike(time);
     }
+
 }
 
 void Neuron::Output(uint64_t time) {

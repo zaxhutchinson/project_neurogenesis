@@ -15,3 +15,9 @@ Project Neurogenesis Change Log
     - Adds an id to Layer so that recorded spikes can be traced back to the Layer and Neuron.
     - Loading and Saving models appears to be working.
     - Recording spikes appears to be working.
+
+1/6/2019
+    - Adds bylayer.py. First bit of visualization code in Python. Currently, it displays a raster plot of each layer in default colors.
+    - Adds -d command line option by which a user can set up multiple runs of the same or different datasets.
+    - Adds dendritic tree growth and rate to the LayerTemplate.
+    - Fixes a host of bugs as the project moves toward a first working version with actual neurogenesis.

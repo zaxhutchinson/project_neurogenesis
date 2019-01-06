@@ -18,6 +18,8 @@ struct Model {
     sptr<InputVector> input_vector;
     vsptr<Layer> layers;
 
+    void PrintModelDetails();
+
     ///////////////////////////////////////////////////////////////////////////
     template<class Archive>
     void save(Archive & ar) const {

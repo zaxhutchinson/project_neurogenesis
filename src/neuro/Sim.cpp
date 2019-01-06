@@ -28,6 +28,7 @@ void Sim::Build() {
             case 0: BuildModel_A_0(model.get(),&options,neuron_templates.get(),&rng);
         }
     }
+    model->PrintModelDetails();
 }
 
 void Sim::Run() {
@@ -48,7 +49,7 @@ void Sim::Run() {
 
         if(time==next_dataset_stop) {
 
-            std::cout << "STOPPING DS: " << ds_counter << std::endl;
+            std::cout << "STOPPING DATA: " << ds_counter << std::endl;
             ds_counter++;
             model->input_vector->ZeroInputs();
 
@@ -64,7 +65,7 @@ void Sim::Run() {
         }
 
         if(time==next_dataset_start) {
-            std::cout << "STARTING DS: " << ds_counter << std::endl;
+            std::cout << "STARTING DATA: " << ds_counter << std::endl;
             
             Data& data = dataset->GetData(ds_counter);
             for(int i = 0; i < data.positions.size(); i++) {
@@ -73,8 +74,8 @@ void Sim::Run() {
         }
 
         Update(time);
-
         time++;
+        
     }
 
     // Stop recording if necessary
@@ -91,6 +92,7 @@ void Sim::Update(uint64_t time) {
     }    
 }
 void Sim::UpdateLayer(sptr<Layer> layer, uint64_t time) {
+
     for(vsptr<Neuron>::iterator it = layer->neurons.begin();
             it != layer->neurons.end(); it++) {
         if((*it)->Update(time)) {

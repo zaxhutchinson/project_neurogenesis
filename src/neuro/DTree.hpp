@@ -14,6 +14,7 @@ class Synapse;
 class DTree {
 public:
     DTree();
+    DTree(double _growth_rate, uint64_t _growth_window);
 
     void AddSynapse(wptr<Synapse> synapse);
 

@@ -15,7 +15,7 @@ struct Options {
     int input_size=100;
     uint64_t stimulus_duration=1000;
     uint64_t between_duration=1000;
-    vec<int> dataset_id={0};
+    vec<int> dataset_id;
 };
 
 #endif

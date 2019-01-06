@@ -28,6 +28,8 @@ struct LayerTemplate {
     std::string neuron_type;
     int num_neurons;
     int dtrees_per_neuron;
+    double dtree_growth_rate;
+    uint64_t dtree_growth_window;
     int syn_per_dtree;
     double syn_weight;
 };
