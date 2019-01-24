@@ -1,13 +1,43 @@
 #include"DTree.hpp"
 #include"Synapse.hpp"
 
-DTree::DTree() {
+DTree::DTree() 
+    : active(true), cur_mature_synapses(0) {
 
 }
 
 DTree::DTree(double _growth_rate, uint64_t _growth_window) 
-    : growth_rate(_growth_rate), growth_window(_growth_window) {
+    : growth_rate(_growth_rate), growth_window(_growth_window),
+        active(true), cur_mature_synapses(0)  {
 
+}
+
+int DTree::GetMaxMatureSynapses() {
+    return max_mature_synapses;
+}
+
+void DTree::SetMaxMatureSynapses(int ms) {
+    max_mature_synapses = ms;
+}
+
+int DTree::GetCurMatureSynapses() {
+    return cur_mature_synapses;
+}
+
+void DTree::SetCurMatureSynapses(int ms) {
+    cur_mature_synapses = ms;
+}
+
+void DTree::AddMatureSynapse() {
+    cur_mature_synapses++;
+}
+
+bool DTree::IsActive() {
+    return active;
+}
+
+void DTree::SetActive(bool act) {
+    active = act;
 }
 
 void DTree::AddSynapse(wptr<Synapse> synapse) {
@@ -16,6 +46,8 @@ void DTree::AddSynapse(wptr<Synapse> synapse) {
 
 void DTree::AddActivity(sptr<Synapse> synapse, uint64_t time) {
 
+
+    if(cur_mature_synapses >= max_mature_synapses) active=false;
     
 
     for(lwptr<Synapse>::iterator it = recently_active.begin();

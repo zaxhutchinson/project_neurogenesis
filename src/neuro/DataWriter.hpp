@@ -25,10 +25,13 @@ struct SpikeData {
 class DataWriter {
 public:
     DataWriter();
+
+    void WriteModelMetadata(vec<uint64_t> & layer_sizes);
+
     void AddData(SpikeData data);
     void WriteThread();
 
-    void Start(std::string savename);
+    void Start(std::string savename, vec<uint64_t> & layer_sizes);
     void Stop();
 private:
     std::string fname;

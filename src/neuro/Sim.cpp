@@ -22,10 +22,11 @@ void Sim::Build() {
     } else {
         model = std::make_unique<Model>();
         model->name = options.savename;
-        model->neuron_id = std::make_unique<ID>();
+        model->layer_id = std::make_unique<ID>();
 
         switch(options.build_id) {
             case 0: BuildModel_A_0(model.get(),&options,neuron_templates.get(),&rng);
+            case 1: BuildModel_A_1(model.get(),&options,neuron_templates.get(),&rng);
         }
     }
     model->PrintModelDetails();
@@ -42,8 +43,13 @@ void Sim::Run() {
     uint64_t next_dataset_start=time;
     uint64_t next_dataset_stop=time+options.stimulus_duration;
 
+    vec<uint64_t> layer_sizes;
+    for(int i = 0; i < model->layers.size(); i++) {
+        layer_sizes.push_back(model->layers[i]->neurons.size());
+    }
+
     // Start recording if necessary.
-    if(options.record) writer.Start(options.recname);
+    if(options.record) writer.Start(options.recname, layer_sizes);
 
     while(!quit) {
 
@@ -100,13 +106,15 @@ void Sim::UpdateLayer(sptr<Layer> layer, uint64_t time) {
         }
     }
 
-    for(lsptr<Synapse>::iterator it = layer->synapses.begin();
-            it != layer->synapses.end(); ) {
-        if( (*it)->GetMaturity() > config::SPIKES_TO_MATURITY) {
-            (*it)->InitAsNorm();
-            it = layer->synapses.erase(it);
-        } else {
-            it++;
+    // Every 100th ts delete inactive synapses.
+    if(time % 100) {
+        for(lsptr<Synapse>::iterator it = layer->synapses.begin();
+                it != layer->synapses.end(); ) {
+            if( !(*it)->GetActive() ) {
+                it = layer->synapses.erase(it);
+            } else {
+                it++;
+            }
         }
     }
 }

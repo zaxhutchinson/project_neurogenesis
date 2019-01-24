@@ -74,14 +74,24 @@ void Neuron::UpdateSpikes(bool new_spike) {
 void Neuron::RegisterSpike(uint64_t time) {
 
     for(lsptr<Synapse>::iterator it = i_syn.begin();
-            it != i_syn.end(); it++) {
-        (*it)->RegisterNewPostSpike(time);
+            it != i_syn.end(); ) {
+        if( !(*it)->GetActive() ) {
+            it = i_syn.erase(it);
+        } else {
+            (*it)->RegisterNewPostSpike(time);
+            it++;
+        }
     }
 
     for(lsptr<Synapse>::iterator it = o_syn.begin();
-            it != o_syn.end(); it++) {
+            it != o_syn.end(); ) {
         
-        (*it)->RegisterNewPreSpike(time);
+        if( !(*it)->GetActive() ){
+            it = o_syn.erase(it);
+        } else {
+            (*it)->RegisterNewPreSpike(time);
+            it++;
+        }
     }
 
 }

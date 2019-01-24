@@ -21,3 +21,12 @@ Project Neurogenesis Change Log
     - Adds -d command line option by which a user can set up multiple runs of the same or different datasets.
     - Adds dendritic tree growth and rate to the LayerTemplate.
     - Fixes a host of bugs as the project moves toward a first working version with actual neurogenesis.
+
+1/9/2019
+    - Adds layer and neuron count output to any recording. The first data written for a session is: [NUMBER OF LAYERS] [NEURONS LAYER 0] ... [NEURONS LAYER N-1]. Each of these entries is 8 bytes.
+    - Updates bylayer.py to reflect the change above.
+    - Adds a three layer model A_1.
+
+1/10/2019
+    - Adds ability for Synapses to mature without oversight.
+    - Adds ability for DTrees to delete themselves if a pre-set number of their synapses reach maturity. Since DTrees do not store references to their synapses, they keep a counter that increments when a synapse reaches maturity. When the threshold is reached, the DTree deactivates itself. Immature synapses check if their DTree is active when updating. If it isn't, they deactivate themselves.

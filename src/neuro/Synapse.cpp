@@ -4,12 +4,12 @@
 // SYNAPSE INTERFACE DEFINITIONS
 /////////////////////////////////////////////////////////////////////////
 Synapse::Synapse() 
-    : active(true) {
+    : active(true), maturity(0) {
     SetSignalHistorySize(2);
 }
 
 Synapse::Synapse(double _weight)
-    : active(true), weight(_weight) {
+    : active(true), weight(_weight), maturity(0) {
     
     SetSignalHistorySize(2);
 }
@@ -33,6 +33,10 @@ void Synapse::InitAsNorm() {
     mature = true;
     RegisterNewPreSpike = std::bind(&Synapse::norm_RegisterNewPreSpike, this, std::placeholders::_1);
     RegisterNewPostSpike = std::bind(&Synapse::norm_RegisterNewPostSpike, this, std::placeholders::_1);
+}
+
+bool Synapse::IsMature() {
+    return mature;
 }
 
 SynapseType Synapse::GetType() const { 
@@ -63,7 +67,12 @@ void Synapse::SetSignal(uint64_t time, double signal) {
 void Synapse::proto_RegisterNewPreSpike(uint64_t time) {
     if(pre_spike_time) *pre_spike_time = time;
     else pre_spike_time = std::make_unique<uint64_t>(time);
-    dendritic_tree->AddActivity(shared_from_this(),time);
+    if(dendritic_tree->IsActive()) {
+        dendritic_tree->AddActivity(shared_from_this(),time);
+    } else {
+        dendritic_tree=nullptr;
+        active=false;
+    }
 }
 void Synapse::proto_RegisterNewPostSpike(uint64_t time) {
     if(post_spike_time) *post_spike_time = time;
@@ -72,6 +81,11 @@ void Synapse::proto_RegisterNewPostSpike(uint64_t time) {
         double diff_t = static_cast<double>(time-*pre_spike_time);
         if(diff_t<post_learn_window) {
             maturity++;
+            if(maturity > maturity_threshold) {
+                dendritic_tree->AddMatureSynapse();
+                InitAsNorm();
+                
+            }
         }
     }
 }
@@ -192,6 +206,14 @@ int Synapse::GetMaturity() {
 
 void Synapse::SetMaturity(int m) {
     maturity = m;
+}
+
+int Synapse::GetMaturityThreshold() {
+    return maturity_threshold;
+}
+
+void Synapse::SetMaturityThreshold(int mt) {
+    maturity_threshold = mt;
 }
 
 sptr<DTree> Synapse::GetDTree() {

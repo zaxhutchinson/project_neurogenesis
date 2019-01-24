@@ -16,6 +16,15 @@ public:
     DTree();
     DTree(double _growth_rate, uint64_t _growth_window);
 
+    int GetMaxMatureSynapses();
+    void SetMaxMatureSynapses(int ms);
+    int GetCurMatureSynapses();
+    void SetCurMatureSynapses(int ms);
+    void AddMatureSynapse();
+
+    bool IsActive();
+    void SetActive(bool act);
+
     void AddSynapse(wptr<Synapse> synapse);
 
     void AddActivity(sptr<Synapse> synapse, uint64_t time);
@@ -24,18 +33,21 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     template<class Archive>
     void save(Archive & ar) const {
-        ar(growth_rate, growth_window, recently_active);
+        ar(growth_rate, growth_window, recently_active, max_mature_synapses, cur_mature_synapses, active);
     }
 
     template<class Archive>
     void load(Archive & ar) {
-        ar(growth_rate, growth_window, recently_active);
+        ar(growth_rate, growth_window, recently_active, max_mature_synapses, cur_mature_synapses, active);
     }
     ///////////////////////////////////////////////////////////////////////////
 private:
     double growth_rate;
     uint64_t growth_window;
     lwptr<Synapse> recently_active;
+    int max_mature_synapses;
+    int cur_mature_synapses;
+    bool active;
 };
 
 

@@ -26,6 +26,18 @@ SpikeData& SpikeData::operator=(const SpikeData & rhs) {
 DataWriter::DataWriter() {
     run = false;
 }
+
+void DataWriter::WriteModelMetadata(vec<uint64_t> & layer_sizes) {
+    std::ofstream of(fname, std::ios::binary|std::ios::out|std::ios::app);
+    uint64_t num_layers = static_cast<uint64_t>(layer_sizes.size());
+    of.write(reinterpret_cast<char*>(&num_layers), sizeof(uint64_t));
+    for(int i = 0; i < layer_sizes.size(); i++) {
+        uint64_t num_neurons = layer_sizes[i];
+        of.write(reinterpret_cast<char*>(&num_neurons),sizeof(uint64_t));
+    }
+    of.close();
+}
+
 void DataWriter::AddData(SpikeData data) {
     qlock.lock();
     data_to_write.push(data);
@@ -49,8 +61,11 @@ void DataWriter::WriteThread() {
     of.close();
 }
 
-void DataWriter::Start(std::string savename) {
+void DataWriter::Start(std::string savename, vec<uint64_t> & layer_sizes) {
     fname = savename;
+
+    WriteModelMetadata(layer_sizes);
+
     run=true;
     while(t_write.joinable()) ;
     t_write = std::thread(&DataWriter::WriteThread, this);

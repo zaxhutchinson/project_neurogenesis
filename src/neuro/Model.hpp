@@ -14,7 +14,7 @@
 
 struct Model {
     std::string name;
-    uptr<ID> neuron_id;
+    uptr<ID> layer_id;
     sptr<InputVector> input_vector;
     vsptr<Layer> layers;
 
@@ -23,12 +23,12 @@ struct Model {
     ///////////////////////////////////////////////////////////////////////////
     template<class Archive>
     void save(Archive & ar) const {
-        ar(name,input_vector,layers,neuron_id);
+        ar(name,input_vector,layers,layer_id);
     }
 
     template<class Archive>
     void load(Archive & ar) {
-        ar(name,input_vector,layers,neuron_id);
+        ar(name,input_vector,layers,layer_id);
     }
     ///////////////////////////////////////////////////////////////////////////
 };

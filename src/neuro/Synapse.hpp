@@ -22,6 +22,7 @@ functionality provides the necessary information to the Neuron class.
 #include"cereal/types/functional.hpp"
 
 #include"zxlb.hpp"
+#include"Config.hpp"
 
 ////////////////////////////////////////////////////////////////////
 // ENUM
@@ -48,6 +49,8 @@ public:
     void AddDTree(sptr<DTree> dtree);
     void InitAsProto();
     void InitAsNorm();
+
+    bool IsMature();
 
     SynapseType GetType() const;
     void SetType(SynapseType type);
@@ -87,6 +90,8 @@ public:
 
     int GetMaturity();
     void SetMaturity(int m);
+    int GetMaturityThreshold();
+    void SetMaturityThreshold(int mt);
 
     sptr<DTree> GetDTree();
     void SetDTree(sptr<DTree> dtree);
@@ -100,7 +105,7 @@ public:
         ar(type, active, weight, signal_history_size,
             strength, post_learn_window, pre_learn_window,
             post_learn_rate, pre_learn_rate,
-            dendritic_tree, mature, maturity);
+            dendritic_tree, mature, maturity, maturity_threshold);
     }
 
     template<class Archive>
@@ -108,7 +113,7 @@ public:
         ar(type, active, weight, signal_history_size,
             strength, post_learn_window, pre_learn_window,
             post_learn_rate, pre_learn_rate,
-            dendritic_tree, mature, maturity);
+            dendritic_tree, mature, maturity, maturity_threshold);
 
         for(int i = 0; i < signal_history_size; i++) {
             signal.push_back(0.0);
@@ -137,6 +142,7 @@ private:
     sptr<DTree> dendritic_tree;
     bool mature;
     int maturity;
+    int maturity_threshold;
 
 };
 

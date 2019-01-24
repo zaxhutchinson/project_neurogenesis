@@ -32,6 +32,8 @@ struct LayerTemplate {
     uint64_t dtree_growth_window;
     int syn_per_dtree;
     double syn_weight;
+    int syn_maturity_threshold;
+    int dtree_max_mature_synapses;
 };
 
 /* Layer
@@ -44,16 +46,16 @@ struct Layer {
     vsptr<Neuron> neurons;
     lsptr<Synapse> synapses;
     vwptr<Layer> layers;   
-
+    ID neuron_ids;
     ///////////////////////////////////////////////////////////////////////////
     template<class Archive>
     void save(Archive & ar) const {
-        ar(id,neurons,synapses,layers);
+        ar(id,neurons,synapses,layers,neuron_ids);
     }
 
     template<class Archive>
     void load(Archive & ar) {
-        ar(id,neurons,synapses,layers);
+        ar(id,neurons,synapses,layers, neuron_ids);
     }
     ///////////////////////////////////////////////////////////////////////////
 

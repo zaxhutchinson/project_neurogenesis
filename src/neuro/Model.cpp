@@ -9,15 +9,15 @@ void Model::PrintModelDetails() {
         std::cout << "LAYER " << std::to_string(i)
             << "  " << std::to_string(layers[i]->neurons.size()) << " neurons" << std::endl;
 
-        // if(i==1) {
-        //     for(int j = 0; j < layers[i]->synapses.size(); j++)  {
-        //         for(lsptr<Synapse>::iterator it = layers[i]->synapses.begin(); it != layers[i]->synapses.end(); it++) {
-        //             if((*it)->GetStrength() > 0.0) {
-        //                 std::cout << "STRENGTH: " << std::to_string((*it)->GetStrength()) << std::endl;
-        //             }
-        //         }
-        //     }
-        // }
+        int mature=0;
+        int proto=0;
+        if(i>0) {
+            for(lsptr<Synapse>::iterator it = layers[i]->synapses.begin(); it != layers[i]->synapses.end(); it++) {
+                if( (*it)->IsMature()) mature++;
+                else proto++;
+            }
+        }
+        std::cout << "\tMature: " << mature << "  Proto: " << proto << std::endl;
     }
 
 
